@@ -27,11 +27,18 @@ def seed_everything(seed=11747):
 class BertSentClassifier(torch.nn.Module):
 	def __init__(self, config):
 		super(BertSentClassifier, self).__init__()
-		pass
+		self.num_labels 		= 	config.num_labels
+		self.bert  			= 	BertModel.from_pretrained('bert-base-uncased')	
+
+		self.dropout 			= 	torch.nn.Dropout(config.hidden_dropout_prob)
+		self.classifier         	=   	torch.nn.Linear(config.hidden_size, config.num_labels)
 
 	def forward(self, input_ids, token_type_ids, attention_mask): 
 		# 
-		pass
+		pooled_output 			= 	self.bert(input_ids= input_ids, attention_mask= attention_mask)['pooler_output']
+		pooled_output 			= 	self.dropout(pooled_output)
+		logits 				= 	self.classifier(pooled_output)
+		return F.log_softmax(logits, dim=1)
 
 
 class PretrainedBert(torch.nn.Module):
